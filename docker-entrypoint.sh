@@ -2,19 +2,17 @@
 set -e
 
 if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
-	: ${MYSQL_ENV_MYSQL_USER:-$(echo $DATABASE_URL | grep -Po '//\K[^:]+')}
-	: ${MYSQL_ENV_MYSQL_PASSWORD:-$(echo $DATABASE_URL | grep -Po '//\w+\K[^@]+')}
-	: ${MYSQL_ENV_MYSQL_DATABASE:-$(echo $DATABASE_URL | grep -Po '3306/\K(.+)')}
+	: ${WORDPRESS_DB_HOST:-$(echo $DATABASE_URL | grep -Po '@\K([^:]*)')}
+	: ${WORDPRESS_DB_USER:-$(echo $DATABASE_URL | grep -Po '//\K[^:]+')}
+	: ${WORDPRESS_DB_PASSWORD:-$(echo $DATABASE_URL | grep -Po '//\w+\K[^@]+')}
+	: ${WORDPRESS_DB_NAME:-$(echo $DATABASE_URL | grep -Po '3306/\K(.+)')}
 	
-	: "${WORDPRESS_DB_HOST:=mysql}"
-	# if we're linked to MySQL and thus have credentials already, let's use them
-	: ${WORDPRESS_DB_USER:=${MYSQL_ENV_MYSQL_USER:-root}}
-	if [ "$WORDPRESS_DB_USER" = 'root' ]; then
-		: ${WORDPRESS_DB_PASSWORD:=$MYSQL_ENV_MYSQL_ROOT_PASSWORD}
-	fi
-	: ${WORDPRESS_DB_PASSWORD:=$MYSQL_ENV_MYSQL_PASSWORD}
-	: ${WORDPRESS_DB_NAME:=${MYSQL_ENV_MYSQL_DATABASE:-wordpress}}
-
+	echo $DATABASE_URL
+	echo $WORDPRESS_DB_HOST
+	echo $WORDPRESS_DB_USER
+	echo $WORDPRESS_DB_PASSWORD
+	echo $WORDPRESS_DB_NAME
+	
 	if [ -z "$WORDPRESS_DB_PASSWORD" ]; then
 		echo >&2 'error: missing required WORDPRESS_DB_PASSWORD environment variable'
 		echo >&2 '  Did you forget to -e WORDPRESS_DB_PASSWORD=... ?'
