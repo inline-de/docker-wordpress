@@ -2,6 +2,10 @@
 set -e
 
 if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
+	: ${MYSQL_ENV_MYSQL_USER:-$(echo $DATABASE_URL | grep -Po '//\K[^:]+')}
+	: ${MYSQL_ENV_MYSQL_PASSWORD:-$(echo $DATABASE_URL | grep -Po '//\w+\K[^@]+')}
+	: ${MYSQL_ENV_MYSQL_DATABASE:-$(echo $DATABASE_URL | grep -Po '3306/\K(.+)')}
+	
 	: "${WORDPRESS_DB_HOST:=mysql}"
 	# if we're linked to MySQL and thus have credentials already, let's use them
 	: ${WORDPRESS_DB_USER:=${MYSQL_ENV_MYSQL_USER:-root}}
