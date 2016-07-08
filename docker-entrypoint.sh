@@ -2,16 +2,10 @@
 set -e
 
 if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
-	: ${WORDPRESS_DB_HOST:-$(echo $DATABASE_URL | grep -Po '@\K([^:]*)')}
-	: ${WORDPRESS_DB_USER:-$(echo $DATABASE_URL | grep -Po '//\K[^:]+')}
-	: ${WORDPRESS_DB_PASSWORD:-$(echo $DATABASE_URL | grep -Po '//\w+\K[^@]+')}
+	: ${WORDPRESS_DB_HOST:=$(echo $DATABASE_URL | grep -Po '@\K([^:]*)')}
+	: ${WORDPRESS_DB_USER:=$(echo $DATABASE_URL | grep -Po '//\K[^:]+')}
+	: ${WORDPRESS_DB_PASSWORD:-$(echo $DATABASE_URL | grep -Po '//\w+:\K[^@]+' )}
 	: ${WORDPRESS_DB_NAME:-$(echo $DATABASE_URL | grep -Po '3306/\K(.+)')}
-	
-	echo $DATABASE_URL
-	echo $WORDPRESS_DB_HOST
-	echo $WORDPRESS_DB_USER
-	echo $WORDPRESS_DB_PASSWORD
-	echo $WORDPRESS_DB_NAME
 	
 	if [ -z "$WORDPRESS_DB_PASSWORD" ]; then
 		echo >&2 'error: missing required WORDPRESS_DB_PASSWORD environment variable'
